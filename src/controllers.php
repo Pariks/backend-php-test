@@ -1,7 +1,7 @@
 <?php
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Response; 
 
 $app['twig'] = $app->share($app->extend('twig', function($twig, $app) {
     $twig->addGlobal('user', $app['session']->get('user'));
@@ -63,6 +63,26 @@ $app->get('/todo/{id}', function ($id) use ($app) {
     }
 })
 ->value('id', null);
+
+$app->get('/todo/{id}/json', function ($id) use ($app) {
+    if (null === $user = $app['session']->get('user')) {
+        return $app->redirect('/login');
+    }
+ 
+    if (is_numeric($id)){
+        $sql = "SELECT * FROM todos WHERE id = '$id'";
+        $todo = $app['db']->fetchAssoc($sql);
+
+        return $app['twig']->render('json.html', [
+            'todo' => json_encode($todo),
+        ]);
+    } else {
+        return $app['twig']->render('json.html', [
+            'todo' => 'Please Specify valid integer id in URL. Example --> /todo/2/json',
+        ]);
+    }
+})->value('id', null);
+
 
 
 $app->post('/todo/add', function (Request $request) use ($app) {
