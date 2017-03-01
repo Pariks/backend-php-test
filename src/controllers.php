@@ -1,7 +1,9 @@
 <?php
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response; 
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Core\Lib\MySqli;
 
 $app['twig'] = $app->share($app->extend('twig', function($twig, $app) {
     $twig->addGlobal('user', $app['session']->get('user'));
@@ -44,11 +46,11 @@ $app->get('/logout', function () use ($app) {
 $app->get('/todo/{id}', function ($id) use ($app) {
     if (null === $user = $app['session']->get('user')) {
         return $app->redirect('/login');
-    }
-
-    if ($id){
+    } 
+ 
+    if (is_numeric($id)){
         $sql = "SELECT * FROM todos WHERE id = '$id'";
-        $todo = $app['db']->fetchAssoc($sql);
+        $todo = $app['db']->fetchAssoc($sql); 
 
         return $app['twig']->render('todo.html', [
             'todo' => $todo,
@@ -95,7 +97,13 @@ $app->post('/todo/add', function (Request $request) use ($app) {
 
 	if(!empty($description)){
     $sql = "INSERT INTO todos (user_id, description) VALUES ('$user_id', '$description')";
-    $app['db']->executeUpdate($sql);
+    $result = $app['db']->executeUpdate($sql);
+
+        if($result){
+            $app['session']->getFlashBag()->add('notify', 'New Description Added');
+            return $app->redirect('/todo');
+
+        }
 	}
 	
     return $app->redirect('/todo');
@@ -120,7 +128,8 @@ $app->match('/todo/delete/{id}', function ($id) use ($app) {
 
     $sql = "DELETE FROM todos WHERE id = '$id'";
     $app['db']->executeUpdate($sql);
-
+    
+    $app['session']->getFlashBag()->add('notify', 'Item/Description Deleted');
     return $app->redirect('/todo');
 });
 
