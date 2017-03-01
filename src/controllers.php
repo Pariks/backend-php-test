@@ -47,18 +47,16 @@ $app->get('/todo/{id}', function ($id) use ($app) {
     if (null === $user = $app['session']->get('user')) {
         return $app->redirect('/login');
     } 
- 
-    if (is_numeric($id)){
-        $sql = "SELECT * FROM todos WHERE id = '$id'";
-        $todo = $app['db']->fetchAssoc($sql); 
 
+    $db = new MySqli();
+
+    if (is_numeric($id)){
+        $todo = $db->fetchByIdFromDb($app, $id);
         return $app['twig']->render('todo.html', [
             'todo' => $todo,
         ]);
     } else {
-        $sql = "SELECT * FROM todos WHERE user_id = '${user['id']}'";
-        $todos = $app['db']->fetchAll($sql);
-
+        $todos =  $db->fetchAllFromDb($app, $user);
         return $app['twig']->render('todos.html', [
             'todos' => $todos,
         ]);
@@ -70,11 +68,10 @@ $app->get('/todo/{id}/json', function ($id) use ($app) {
     if (null === $user = $app['session']->get('user')) {
         return $app->redirect('/login');
     }
- 
-    if (is_numeric($id)){
-        $sql = "SELECT * FROM todos WHERE id = '$id'";
-        $todo = $app['db']->fetchAssoc($sql);
+    $db = new MySqli();
 
+    if (is_numeric($id)){
+        $todo = $db->fetchByIdFromDb($app, $id);
         return $app['twig']->render('json.html', [
             'todo' => json_encode($todo),
         ]);
@@ -92,17 +89,12 @@ $app->post('/todo/add', function (Request $request) use ($app) {
         return $app->redirect('/login');
     }
 
-    $user_id = $user['id'];
-    $description = $request->get('description');
+    $db = new MySqli();
+	if(!empty($request->get('description'))){
 
-	if(!empty($description)){
-    $sql = "INSERT INTO todos (user_id, description) VALUES ('$user_id', '$description')";
-    $result = $app['db']->executeUpdate($sql);
-
-        if($result){
+        if($db->insert($app,$user['id'],$request->get('description'))){
             $app['session']->getFlashBag()->add('notify', 'New Description Added');
             return $app->redirect('/todo');
-
         }
 	}
 	
@@ -113,22 +105,18 @@ $app->post('/todo/mark', function (Request $request) use ($app) {
     if (null === $user = $app['session']->get('user')) {
         return $app->redirect('/login');
     }
-
-    $taskId = $request->get('marked');
+    $db = new MySqli();
     
-    if(!empty($taskId)){
-        $sql = "UPDATE todos SET completed = 1 WHERE id ={$taskId}";
-        $app['db']->executeUpdate($sql);
+    if(!empty($request->get('marked'))){
+       $db->markCompleted($app, $request->get('marked'));
     }
     return $app->redirect('/todo');
 });
 
 
 $app->match('/todo/delete/{id}', function ($id) use ($app) {
-
-    $sql = "DELETE FROM todos WHERE id = '$id'";
-    $app['db']->executeUpdate($sql);
-    
+    $db = new MySqli();
+    $db->deleteById($app, $id);
     $app['session']->getFlashBag()->add('notify', 'Item/Description Deleted');
     return $app->redirect('/todo');
 });
