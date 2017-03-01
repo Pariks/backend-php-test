@@ -4,7 +4,7 @@
 <div class="col-md-4 col-md-offset-4">
     <h1>Todo:</h1>
     <table class="table table-striped">
-        <th>#</th><th>User</th><th>Description</th><th></th>
+        <th>#</th><th>User</th><th>Description</th><th></th><th>Mark Completed</th>
         <tr>
             <td>{{ todo.id }}</td>
             <td>{{ todo.user_id }}</td>
@@ -13,6 +13,17 @@
                 <form method="post" action="{{ app.request.baseurl }}/todo/delete/{{ todo.id }}">
                     <button type="submit" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove glyphicon-white"></span></button>
                 </form>
+            </td>
+            <td>
+                {% if not todo.completed  %}
+                <form method="post" action="{{ app.request.baseurl }}/todo/mark">
+                    <input type="checkbox" name="marked" value="{{ todo.id }}" required> <br></input>
+                    <button type="submit" class="btn btn-sm btn-primary" >Mark Completed</button>
+                </form>
+                {% else %}
+                <input type="checkbox" checked disabled> <br></input>
+                <button type="submit" class="btn btn-sm btn-default"  disabled>Completed</button>
+                {% endif %}
             </td>
         </tr>
     </table>
