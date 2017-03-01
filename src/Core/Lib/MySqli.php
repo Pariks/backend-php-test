@@ -35,4 +35,13 @@ class MySqli
         return $app['db']->executeUpdate($sql);
     }
 
+    public function getUser($app, $user){
+        $username  = $user['username'];
+        $password = $user['password'];
+
+        $sql = "SELECT * FROM users WHERE username = '$username' and password = '$password'";
+        return $app['db']->fetchAssoc($sql);
+
+    }
+
 }

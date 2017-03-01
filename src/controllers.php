@@ -20,13 +20,11 @@ $app->get('/', function () use ($app) {
 
 
 $app->match('/login', function (Request $request) use ($app) {
-    $username = $request->get('username');
-    $password = $request->get('password');
-
-    if ($username) {
-        $sql = "SELECT * FROM users WHERE username = '$username' and password = '$password'";
-        $user = $app['db']->fetchAssoc($sql);
-
+    $data['username'] = $request->get('username');
+    $data['password'] = $request->get('password');
+    $db = new MySqli();
+    if ($request->get('username')) {
+        $user = $db->getUser($app, $data);
         if ($user){
             $app['session']->set('user', $user);
             return $app->redirect('/todo');
