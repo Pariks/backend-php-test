@@ -41,7 +41,6 @@
                         <button type="submit" class="btn btn-sm btn-default"  disabled>Completed</button>
                     {% endif %}
                 </td>
-
             </tr>
         {% endfor %}
         <tr>
@@ -53,9 +52,28 @@
                     <button type="submit" class="btn btn-sm btn-primary">Add</button>
                 </td>
             </form>
-
         </tr>
     </table>
+    <div>
+        {% if pagination%}
+                {% if pagination.prevPage is defined %}
+                    <a href="{{ app.request.baseurl }}/todo/page/{{pagination.prevPage}}" class="btn btn-sm btn-primary" > prev</a>
+                {% endif %}
+                {% for i in 0..pagination.totalPage %}
+                        {% if pagination.currentPage == i %}
+                            <span class="btn btn-sm btn-default disabled" > {{i}}</span>
+                        {% else %}
+                            <a href="{{ app.request.baseurl }}/todo/page/{{i}}" class="btn btn-sm btn-default" > {{i}}</a>
+                        {% endif %}
+                {% endfor %}
+
+                {% if pagination.nextPage is defined %}
+                     <a href="{{ app.request.baseurl }}/todo/page/{{pagination.nextPage}}" class="btn btn-sm btn-primary" > next</a>
+                {% endif %}
+
+        {% endif %}
+    </div>
+
 </div>
 
 {% endblock %}

@@ -55,12 +55,32 @@ $app->get('/todo/{id}', function ($id) use ($app) {
         ]);
     } else {
         $todos =  $db->fetchAllFromDb($app, $user);
+        $pagination = \Core\Lib\Pagination::getPagination($todos, $db->getTotalTodoCount($app, $user));
+
         return $app['twig']->render('todos.html', [
             'todos' => $todos,
+            'pagination' => $pagination,
         ]);
     }
 })
 ->value('id', null);
+
+$app->get('/todo/page/{pageNum}', function ($pageNum) use ($app) {
+    if (null === $user = $app['session']->get('user')) {
+        return $app->redirect('/login');
+    }
+    $db = new MySqli();
+
+    $todos =  $db->fetchAllFromDb($app, $user, 5, (int)$pageNum*5);
+    $pagination = \Core\Lib\Pagination::getPagination($todos, $db->getTotalTodoCount($app, $user), (int)$pageNum);
+    return $app['twig']->render('todos.html', [
+         'todos' => $todos,
+         'pagination' => $pagination,
+    ]);
+
+})->value('pageNum', null);
+
+
 
 $app->get('/todo/{id}/json', function ($id) use ($app) {
     if (null === $user = $app['session']->get('user')) {

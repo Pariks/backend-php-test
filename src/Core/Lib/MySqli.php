@@ -9,11 +9,16 @@ class MySqli
 
     public function __construct(){}
 
-    public function fetchAllFromDb($app, $user){
-        $sql = "SELECT * FROM todos WHERE user_id = '${user['id']}'";
+    public function fetchAllFromDb($app, $user, $limit = 5, $offset = 0){
+        $sql = "SELECT * FROM todos WHERE user_id = '${user['id']}' LIMIT {$limit} OFFSET {$offset}";
         return $app['db']->fetchAll($sql);
     }
+    public function getTotalTodoCount($app, $user){
+        $sql = "SELECT count(*) as totalCount FROM todos WHERE user_id = '${user['id']}'";
+        $result = $app['db']->fetchAll($sql);
 
+        return $result[0]['totalCount'];
+    }
     public function fetchByIdFromDb($app, $id){
         $sql = "SELECT * FROM todos WHERE id = '$id'";
         return $app['db']->fetchAssoc($sql);
