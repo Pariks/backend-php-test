@@ -48,6 +48,7 @@ $app->get('/todo/{id}', function ($id) use ($app) {
 
     $db = new MySqli();
 
+
     if (is_numeric($id)){
         $todo = $db->fetchByIdFromDb($app, $id);
         return $app['twig']->render('todo.html', [
@@ -107,13 +108,15 @@ $app->post('/todo/add', function (Request $request) use ($app) {
         return $app->redirect('/login');
     }
 
-    $db = new MySqli();
 	if(!empty($request->get('description'))){
 
-        if($db->insert($app,$user['id'],$request->get('description'))){
-            $app['session']->getFlashBag()->add('notify', 'New Description Added');
-            return $app->redirect('/todo');
-        }
+        $em = $app['orm.em'];
+        $todo = new \Core\Lib\Todos();
+        $todo->setUserId($user['id']);
+        $todo->setCompleted(0);
+        $todo->setDescription($request->get('description'));
+        $em->persist($todo);
+        $em->flush();
 	}
 	
     return $app->redirect('/todo');
@@ -126,7 +129,7 @@ $app->post('/todo/mark', function (Request $request) use ($app) {
     $db = new MySqli();
     
     if(!empty($request->get('marked'))){
-       $db->markCompleted($app, $request->get('marked'));
+       $db->markCompleted($app, $request->get('marked'));      
     }
     return $app->redirect('/todo');
 });
