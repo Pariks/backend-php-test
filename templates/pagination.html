@@ -1,0 +1,29 @@
+<div>
+    {% if pagination%}
+        {% if pagination.totalPage > 1%}
+            {% if pagination.prevPage is defined %}
+                {%  if pagination.prevPage == 0 %}
+                    <a href="{{ app.request.baseurl }}/todo" class="btn btn-sm btn-primary" > prev</a>
+                {% else %}
+                    <a href="{{ app.request.baseurl }}/todo/page/{{pagination.prevPage}}" class="btn btn-sm btn-primary" > prev</a>
+                {% endif %}
+            {% endif %}
+
+            {% for i in 0..(pagination.totalPage - 1) %}
+                {% if pagination.currentPage == i %}
+                    <span class="btn btn-sm btn-default disabled" > {{i}}</span>
+                {% elseif i == 0 %}
+                    <a href="{{ app.request.baseurl }}/todo" class="btn btn-sm btn-default" > {{i}}</a>
+                {% else %}
+                    <a href="{{ app.request.baseurl }}/todo/page/{{i}}" class="btn btn-sm btn-default" > {{i}}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if pagination.nextPage < pagination.totalPage %}
+                {% if pagination.nextPage is defined %}
+                    <a href="{{ app.request.baseurl }}/todo/page/{{pagination.nextPage}}" class="btn btn-sm btn-primary" > next</a>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+</div>
