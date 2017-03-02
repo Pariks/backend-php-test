@@ -57,11 +57,18 @@
     <div>
         {% if pagination%}
                 {% if pagination.prevPage is defined %}
-                    <a href="{{ app.request.baseurl }}/todo/page/{{pagination.prevPage}}" class="btn btn-sm btn-primary" > prev</a>
+                    {%  if pagination.prevPage == 0 %}
+                        <a href="{{ app.request.baseurl }}/todo" class="btn btn-sm btn-primary" > prev</a>
+                    {% else %}
+                         <a href="{{ app.request.baseurl }}/todo/page/{{pagination.prevPage}}" class="btn btn-sm btn-primary" > prev</a>
+                    {% endif %}
                 {% endif %}
+
                 {% for i in 0..pagination.totalPage %}
                         {% if pagination.currentPage == i %}
                             <span class="btn btn-sm btn-default disabled" > {{i}}</span>
+                        {% elseif i == 0 %}
+                            <a href="{{ app.request.baseurl }}/todo" class="btn btn-sm btn-default" > {{i}}</a>
                         {% else %}
                             <a href="{{ app.request.baseurl }}/todo/page/{{i}}" class="btn btn-sm btn-default" > {{i}}</a>
                         {% endif %}
